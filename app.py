@@ -24,7 +24,13 @@ def health():
 def translate():
     data = request.get_json()
     input = data['input']
-    prompt = "Translate this Chinese Christian article into English:\n\n{input}\n\n".format(input=input)
+    prompt = """
+Translate this Chinese Christian text into English:
+
+{input}
+
+Say "<translate failed>" if you cannot translate. Don't say anything else."
+""".format(input=input)
 
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
