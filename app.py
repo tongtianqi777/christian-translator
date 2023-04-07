@@ -1,9 +1,9 @@
 from flask import Flask
-# from flask import request
+from flask import request
 
-# import openai
-# openai.organization = "org-PDxYgRN9zTF3ZZV0iyKjg6yO"
-# openai.api_key = "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"
+import openai
+openai.organization = "org-PDxYgRN9zTF3ZZV0iyKjg6yO"
+openai.api_key = "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"
 
 # EB looks for an 'application' callable by default.
 app = Flask(__name__)
@@ -22,17 +22,16 @@ def health():
 
 @app.route('/translate', methods=['POST'])
 def translate():
-    # data = request.get_json()
-    # input = data['input']
-    # prompt = "Translate this Chinese Christian article into English:\n\n{input}\n\n".format(input=input)
+    data = request.get_json()
+    input = data['input']
+    prompt = "Translate this Chinese Christian article into English:\n\n{input}\n\n".format(input=input)
 
-    # completion = openai.ChatCompletion.create(
-    #     model="gpt-3.5-turbo",
-    #     messages=[{"role": "user", "content": prompt}]
-    # )
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": prompt}]
+    )
 
-    # return completion['choices'][0]['message']['content']
-    return "succcess"
+    return completion['choices'][0]['message']['content']
 
 
 # run the app.
