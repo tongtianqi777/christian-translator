@@ -6,14 +6,25 @@ from flask import request
 # openai.api_key = "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"
 
 # EB looks for an 'application' callable by default.
-application = Flask(__name__)
+app = Flask(__name__)
 
 
-@application.post('/translate')
+@app.route('/')
+def index():
+    print('Request for root received')
+    return "root succcess"
+
+
+@app.route('/health')
+def index():
+    return True
+
+
+@app.post('/translate')
 def login():
-    data = request.get_json()
-    input = data['input']
-    prompt = "Translate this Chinese Christian article into English:\n\n{input}\n\n".format(input=input)
+    # data = request.get_json()
+    # input = data['input']
+    # prompt = "Translate this Chinese Christian article into English:\n\n{input}\n\n".format(input=input)
 
     # completion = openai.ChatCompletion.create(
     #     model="gpt-3.5-turbo",
@@ -26,5 +37,4 @@ def login():
 
 # run the app.
 if __name__ == "__main__":
-    application.debug = False
-    application.run(port=5000)
+    app.run()
