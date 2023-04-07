@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import request
+# from flask import request
 
 # import openai
 # openai.organization = "org-PDxYgRN9zTF3ZZV0iyKjg6yO"
@@ -10,18 +10,18 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def index():
+def root():
     print('Request for root received')
     return "root succcess"
 
 
 @app.route('/health')
-def index():
+def health():
     return True
 
 
-@app.post('/translate')
-def login():
+@app.route('/translate', methods=['POST'])
+def translate():
     # data = request.get_json()
     # input = data['input']
     # prompt = "Translate this Chinese Christian article into English:\n\n{input}\n\n".format(input=input)
@@ -37,4 +37,4 @@ def login():
 
 # run the app.
 if __name__ == "__main__":
-    app.run()
+    app.run(port=8000)
