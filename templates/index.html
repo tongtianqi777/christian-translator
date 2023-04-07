@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>TTQ Church Translation (Powered by GPT)</title>
+    <style>
+    /* Style the input areas */
+    .input-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 90vh;
+      width: 90vw;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .input-container textarea {
+      margin: 20px 0;
+      padding: 20px;
+      border-radius: 5px;
+      border: 1px solid gray;
+      font-size: 18px;
+      width: 90%;
+      height: calc(40% - 20px);
+      max-height: 80vh;
+      box-sizing: border-box;
+    }
+    .input-container button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: 1px solid gray;
+      border-radius: 5px;
+      font-size: 18px;
+      background-color: white;
+      color: black;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .input-container button:hover {
+      background-color: gray;
+      color: white;
+    }
+
+    /* Style the footer */
+    footer {
+      text-align: center;
+      font-size: 14px;
+      color: gray;
+      margin-top: 20px;
+    }
+
+    /* Style the body */
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f2f7ff;
+    }
+
+    /* Style the title */
+    h1 {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<h1>TTQ Church Translation (Powered by GPT)</h1>
+<div class="input-container">
+    <textarea id="input1" placeholder="在這裏輸入中文 (put Chinese here) Every translation will cost me some money so please limit your usage!"></textarea>
+    <button id="translateButton" onclick="translateToEnglish()">Translate to English</button>
+    <textarea id="input2" placeholder="翻譯會出現在這裡 (Translation will show up here)"></textarea>
+</div>
+<footer>Email <a href="mailto:tianqitong@outlook.com">TTQ</a> | <a href="https://www.svcae.cc">My Church</a></footer>
+
+<script>
+    function translateToEnglish() {
+      const input1 = document.getElementById("input1");
+      if (input1.value.length > 2000) {
+        alert("The max length supported is 2000 chars");
+      } else {
+        document.getElementById("translateButton").disabled = true;
+        document.getElementById("translateButton").innerHTML = "Translating...";
+
+        fetch("/translate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ input: input1.value })
+        })
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("translateButton").disabled = false;
+          document.getElementById("translateButton").innerHTML = "Translate to English";
+
+          const input2 = document.getElementById("input2");
+          input2.value = data.translation;
+        })
+        .catch(error => console.error(error));
+      }
+    }
+  </script>
+</body>
+</html>
