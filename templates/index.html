@@ -26,8 +26,15 @@
       max-height: 80vh;
       box-sizing: border-box;
     }
+
+    #button-area {
+      display: inline-block;
+    }
+
     .input-container button {
-      margin-top: 20px;
+      margin-top: 0px;
+      margin-left: 20px;
+      margin-right: 20px;
       padding: 10px 20px;
       border: 1px solid gray;
       border-radius: 5px;
@@ -67,35 +74,38 @@
   </style>
 </head>
 <body>
-<h1>🎸 TTQ Church Translation (Powered by GPT)</h1>
+<h1>💬 Church Translation (Powered by GPT)</h1>
+<div>Using OpenAI gpt-3.5-turbo to translate Christian text | <a href="mailto:tianqitong@outlook.com">Contact TTQ</a> | <a href="https://www.svcae.cc">My Church</a></div>
 <div class="input-container">
-    <textarea id="input1" placeholder="在這裏輸入中文 (put Chinese here) Please be mindful of your usage cause I need to pay a small amount of money for each translation!"></textarea>
-    <button id="translateButton" onclick="translateToEnglish()">Translate to English</button>
-    <textarea id="input2" placeholder="翻譯會出現在這裡 (Translation will show up here)"></textarea>
+    <textarea id="input1" placeholder="Put down the input here (在這裏輸入文字)"></textarea>
+    <div id="button-area">
+        <button id="translateButtonEnglish" onclick="translateText()" data-source-lang="chinese" data-target-lang="english">Translate to English</button>
+        <button id="translateButtonChinese" onclick="translateText()" data-source-lang="english" data-target-lang="chinese">Translate to Chinese</button>
+    </div>
+    <textarea id="input2" placeholder="Translation will show up here (翻譯會出現在這裡)"></textarea>
 </div>
-<footer>Email <a href="mailto:tianqitong@outlook.com">TTQ</a> | <a href="https://www.svcae.cc">My Church</a></footer>
+<footer></footer>
 
 <script>
-    function translateToEnglish() {
+    function translateText() {
+      let source_lang = event.target.getAttribute('data-source-lang');
+      let target_lang = event.target.getAttribute('data-target-lang');
+
       const input1 = document.getElementById("input1");
       if (input1.value.length > 2000) {
         alert("The max length supported is 2000 chars");
       } else {
-        document.getElementById("translateButton").disabled = true;
-        document.getElementById("translateButton").innerHTML = "Translating...";
+        document.getElementById("input2").value = "Translating... (please refresh and try again if the wait is longer than 2min)";
 
         fetch("/translate", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ input: input1.value })
+          body: JSON.stringify({ input: input1.value, source_lang: source_lang, target_lang: target_lang })
         })
         .then(response => response.json())
         .then(data => {
-          document.getElementById("translateButton").disabled = false;
-          document.getElementById("translateButton").innerHTML = "Translate to English";
-
           const input2 = document.getElementById("input2");
           input2.value = data.translation;
         })
