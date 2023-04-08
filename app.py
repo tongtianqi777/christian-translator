@@ -4,8 +4,10 @@ from flask import Flask
 from flask import request, render_template
 
 import openai
-openai.organization = "org-PDxYgRN9zTF3ZZV0iyKjg6yO"
-openai.api_key = "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"
+
+# The OpenAI configs
+# Note the OpenAI API key needs to be passed in as env variables
+openai.organization = "org-PDxYgRN9zTF3ZZV0iyKjg6yO"  # Personal
 
 # EB looks for an 'application' callable by default.
 app = Flask(__name__)
@@ -112,5 +114,5 @@ def split_multilingual_text(text):
 
 # run the app.
 if __name__ == "__main__":
-    app.debug = False
+    app.debug = True
     app.run(port=8000)
