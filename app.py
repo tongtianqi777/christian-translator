@@ -19,7 +19,7 @@ def index():
 
 @app.route('/health')
 def health():
-    return True
+    return "all good"
 
 
 @app.route('/translate', methods=['POST'])
@@ -31,6 +31,7 @@ def translate():
 
     translated_lines = []
     for line in lines:
+        print("translating line: {line}".format(line=line))
         translated_line = get_english_translation_from_chinese_line(line)
         translated_lines.append(translated_line)
 
@@ -82,4 +83,5 @@ def split_multilingual_text(text):
 
 # run the app.
 if __name__ == "__main__":
+    app.debug = False
     app.run(port=8000)
