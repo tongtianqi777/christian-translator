@@ -114,5 +114,5 @@ def split_multilingual_text(text):
 
 # run the app.
 if __name__ == "__main__":
-    app.debug = True
+    app.debug = False
     app.run(port=8000)
