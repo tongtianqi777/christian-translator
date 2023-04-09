@@ -54,7 +54,9 @@ Translate this Chinese Christian text into English:
 
 {input}
 
-Say "<translate failed>" if you cannot translate. Don't say anything else.
+
+
+Return "<translate failed>" if you cannot translate. Don't return anything else.
 """.format(input=line)
 
     completion = openai.ChatCompletion.create(
@@ -71,7 +73,9 @@ Translate this English Christian text into Chinese:
 
 {input}
 
-Say "<translate failed>" if you cannot translate. Don't say anything else.
+
+
+Return "<translate failed>" if you cannot translate. Don't return anything else.
 """.format(input=line)
 
     completion = openai.ChatCompletion.create(
