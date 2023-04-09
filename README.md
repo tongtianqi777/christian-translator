@@ -12,12 +12,29 @@ From a few experiments, it appears that GPT is better than Google Translation wh
 For example, for the same English text:
 
 ```text
+Peace brothers and sisters
+```
+
+When translating the text above to Chinese:
+
+Output from Google Translation
+```text
+兄弟姐妹们平安
+```
+
+Output from GPT
+```text
+平安弟兄姊妹
+```
+
+Clearly GPT did better since Christians tend to call each other `弟兄姊妹` in Chinese.
+
+Another longer example:
+```text
 For years, maybe, you have tried fruitlessly to exercise control over yourself, and perhaps this is still your experience;
 but when once you see the truth you will recognize that you are indeed powerless to do anything, but that in setting you aside altogether God has done it all.
 Such a revelation brings human self-effort to an end.
 ```
-
-When translating the text above to Chinese:
 
 Output from Google Translation
 ```text
