@@ -6,6 +6,7 @@
     <title>Christian Translator - Online Christian Text Translation</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
     <style>
         #inputArea1 {
             margin-top: 20px;
@@ -23,7 +24,7 @@
         <div class="container">
             <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
                 <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
-                💬 Christian Translator
+                💬 Christian Translator (v1.1)
                 </a>
 
                 <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
@@ -57,26 +58,29 @@
         function translateText() {
           let source_lang = event.target.getAttribute('data-source-lang');
           let target_lang = event.target.getAttribute('data-target-lang');
-    
+
           const input1 = document.getElementById("inputArea1");
           if (input1.value.length > 2000) {
             alert("The max length supported is 2000 chars");
           } else {
             document.getElementById("inputArea2").value = "Translating... (please report issue if the wait is longer than 2min)";
-    
-            fetch("/translate", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
+
+            $.post({
+              type: "POST",
+              url: "/translate",
+              data: JSON.stringify({ input: input1.value, source_lang: source_lang, target_lang: target_lang }),
+              contentType: "application/json",
+              dataType: "json",
+              success: function(data) {
+                const input2 = document.getElementById("inputArea2");
+                input2.value = data.translation;
               },
-              body: JSON.stringify({ input: input1.value, source_lang: source_lang, target_lang: target_lang })
+              error: function(error) {
+                const input2 = document.getElementById("inputArea2");
+                console.error(error);
+                input2.value = "Traslation Error! Error message: " + error.responseText + "\nPlease email the error to: tianqitong@outlook.com";
+              }
             })
-            .then(response => response.json())
-            .then(data => {
-              const input2 = document.getElementById("inputArea2");
-              input2.value = data.translation;
-            })
-            .catch(error => console.error(error));
           }
         }
       </script>
