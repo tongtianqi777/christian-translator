@@ -21,19 +21,18 @@
   </head>
   <body>
     <header class="p-3 mb-3 border-bottom">
-        <div class="container">
-            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-                <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
-                💬 Christian Translator (v1.1)
-                </a>
+      <div class="container d-flex flex-wrap justify-content-between">
+        <p href="/" class="d-flex align-items-center mb-2 mb-lg-0 font-weight-bold">
+        💬 Christian Translator (v1.1)
+        </p>
 
-                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                <!-- <li><a href="#" class="nav-link px-2 link-secondary">Home</a></li> -->
-                </ul>
-
-                <!-- <div class="dropdown text-end"></div> -->
-            </div>
+        <div class="float-right">
+          <small class="text-muted">Powered by GPT 3.5</small>
+          <!-- <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-end mb-md-0">
+            <li><a href="#" class="nav-link px-2 link-secondary">Home</a></li>
+          </ul> -->
         </div>
+    </div>
     </header>
     <div class="container">
         <textarea class="form-control" id="inputArea1" rows="8" placeholder="Input here (在這裏輸入)"></textarea>
@@ -59,26 +58,26 @@
           let source_lang = event.target.getAttribute('data-source-lang');
           let target_lang = event.target.getAttribute('data-target-lang');
 
-          const input1 = document.getElementById("inputArea1");
-          if (input1.value.length > 2000) {
+          const input1 = $( "#inputArea1" );
+          const input2 = $( "#inputArea2" );
+
+          if ($( "#inputArea1" ).val().length > 2000) {
             alert("The max length supported is 2000 chars");
           } else {
-            document.getElementById("inputArea2").value = "Translating... (please report issue if the wait is longer than 2min)";
+            input2.val("Translating... (please report issue if the wait is longer than 2min)");
 
             $.post({
               type: "POST",
               url: "/translate",
-              data: JSON.stringify({ input: input1.value, source_lang: source_lang, target_lang: target_lang }),
+              data: JSON.stringify({ input: input1.val(), source_lang: source_lang, target_lang: target_lang }),
               contentType: "application/json",
               dataType: "json",
               success: function(data) {
-                const input2 = document.getElementById("inputArea2");
-                input2.value = data.translation;
+                input2.val(data.translation);
               },
               error: function(error) {
-                const input2 = document.getElementById("inputArea2");
                 console.error(error);
-                input2.value = "Traslation Error! Error message: " + error.responseText + "\nPlease email the error to: tianqitong@outlook.com";
+                input2.val("Translation Error! Error message: " + error.responseText + "\nPlease email the error to: tianqitong@outlook.com");
               }
             })
           }
