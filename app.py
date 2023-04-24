@@ -50,23 +50,27 @@ def translate():
         translated_lines = []
         for line in lines:
             logger.info(f"translating ({source_lang} -> {target_lang}): {line}")
-
-            if source_lang == "english" and target_lang == "chinese":
-                translated_line = get_chinese_translation_from_english_line(line)
-            elif source_lang == "chinese" and target_lang == "english":
-                translated_line = get_english_translation_from_chinese_line(line)
-            else:
-                raise Exception(f"unsupported translation language: {source_lang} -> {target_lang}")
-
-            translated_lines.append(translated_line)
+            translated_lines.append(get_translation(line, source_lang, target_lang))
 
         return json.dumps({"translation": "\n".join(translated_lines)})
     except:
         return 'BACKEND TRANSLATION ERROR', 500
 
 
-def get_english_translation_from_chinese_line(line):
-    prompt = """
+def get_translation(line, source_lang, target_lang):
+    if source_lang == "english" and target_lang == "chinese":
+        prompt = """
+Translate this English Christian text into Chinese:
+
+{input}
+
+
+
+Return "<translate failed>" if you cannot translate. Don't return anything else.
+""".format(input=line)
+
+    elif source_lang == "chinese" and target_lang == "english":
+        prompt = """
 Translate this Chinese Christian text into English:
 
 {input}
@@ -76,21 +80,11 @@ Translate this Chinese Christian text into English:
 Return "<translate failed>" if you cannot translate. Don't return anything else.
 """.format(input=line)
 
-    completion = get_gpt35_completion(prompt)
+    else:
+        raise Exception(f"unsupported translation language: {source_lang} -> {target_lang}")
 
-    return completion['choices'][0]['message']['content']
-
-
-def get_chinese_translation_from_english_line(line):
-    prompt = """
-Translate this English Christian text into Chinese:
-
-{input}
-
-
-
-Return "<translate failed>" if you cannot translate. Don't return anything else.
-""".format(input=line)
+    # not using davinci. it sometimes produces weird characters in translation. and it's expensive.
+    # completion = get_davinci003_completion(prompt)
 
     completion = get_gpt35_completion(prompt)
 
@@ -107,6 +101,22 @@ def get_gpt35_completion(prompt, role="user"):
         model="gpt-3.5-turbo",
         messages=[{"role": role, "content": prompt}]
     )
+
+
+@retry(tries=2, delay=1, backoff=2, logger=logger)
+def get_davinci003_completion(prompt):
+    completion = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=prompt,
+        temperature=0.3,
+        max_tokens=100,
+        top_p=1.0,
+        frequency_penalty=0.0,
+        presence_penalty=0.0
+    )
+
+    print(completion)
+    return completion
 
 
 def split_multilingual_text(text):
