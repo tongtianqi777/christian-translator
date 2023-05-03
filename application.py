@@ -24,20 +24,20 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 # EB looks for an 'application' callable by default.
-app = Flask(__name__)
+application = Flask(__name__)
 
 
-@app.route('/')
+@application.route('/')
 def index():
     return render_template('index.html')
 
 
-@app.route('/health')
+@application.route('/health')
 def health():
     return jsonify(success=True)
 
 
-@app.route('/translate', methods=['POST'])
+@application.route('/translate', methods=['POST'])
 def translate():
     try:
         data = request.get_json()
@@ -149,8 +149,8 @@ def split_multilingual_text(text):
 if __name__ == "__main__":
     if platform.system() == "Darwin":
         # enable debug mode if it's mac
-        app.debug = True
-        app.run()
+        application.debug = True
+        application.run()
     else:
-        app.debug = False
-        app.run()
+        application.debug = False
+        application.run()
