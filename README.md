@@ -87,7 +87,15 @@ Sometimes GPT will say some disclaimer like "I'm not religious", and we just wan
 
 ## Deployment
 
-The project can easily be deployed on Microsoft Azure. Note the OpenAPI key is required as an environment variable: `OPENAI_API_KEY`
+The project can easily be deployed with AWS Elastic Beanstalk. Note the OpenAPI key is required as an environment variable: `OPENAI_API_KEY`
+
+Install the EB CLI: https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html
+
+To deploy the application to AWS:
+```shell
+eb deploy
+```
+
 
 ## Contributing
 
