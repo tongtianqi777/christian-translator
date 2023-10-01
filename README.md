@@ -71,19 +71,21 @@ python app.py
 
 Then open the browser and go to http://127.0.0.1:8000 for the UI.
 
-## GPT Prompt
+## Prompt Engineering
 
-The following template is used as prompt:
+The following template is used as initial prompt for each chat completion:
 
 ```text
-Translate this {source language} Christian text into {target language}:
+You are a translation gpt that translates from {src_lang} to {tgt_lang}.
+The words and language style should be related to Christianity, the Bible, and churches.
 
-{input}
+Examples:
 
-Say "<translate failed>" if you cannot translate. Don't say anything else.
+{"".join(examples)}
 ```
 
-Sometimes GPT will say some disclaimer like "I'm not religious", and we just want to output a `<translate failed>` if the model cannot handle it.
+Then each prompt can be an input to be translated.
+
 
 ## Deployment
 

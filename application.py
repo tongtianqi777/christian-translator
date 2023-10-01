@@ -8,6 +8,10 @@ from flask import request, render_template, jsonify
 
 import openai
 from retry import retry
+from typing import List
+
+from examples import EXAMPLES_LOOKUP
+from utils.text_utils import split_sections
 
 # The OpenAI configs
 # Note the OpenAI API key needs to be passed in as env variables
@@ -26,6 +30,13 @@ logger.addHandler(handler)
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
 
+SECTION_DELIMITER = "---"
+
+LOCALE_NAME_LOOKUP = {
+    "en_US": "English",
+    "zh_CN": "Simplified Chinese"
+}
+
 
 @application.route('/')
 def index():
@@ -41,108 +52,54 @@ def health():
 def translate():
     try:
         data = request.get_json()
-        text = data['input']
-        source_lang = data['source_lang']
-        target_lang = data['target_lang']
+        input = data['input']
+        src_lang = data['src_lang']
+        tgt_lang = data['tgt_lang']
 
-        lines = split_multilingual_text(text)
+        sections = split_sections(input, SECTION_DELIMITER)
+        translated_sections = translate_sections(sections, src_lang, tgt_lang)
 
-        translated_lines = []
-        for line in lines:
-            logger.info(f"translating ({source_lang} -> {target_lang}): {line}")
-            translated_lines.append(get_translation(line, source_lang, target_lang))
+        joined_sections = f"\n{SECTION_DELIMITER}\n".join(translated_sections)
 
-        return json.dumps({"translation": "\n".join(translated_lines)})
+        return json.dumps({"translation": joined_sections})
     except:
         return 'BACKEND TRANSLATION ERROR', 500
 
 
-def get_translation(line, source_lang, target_lang):
-    if source_lang == "english" and target_lang == "chinese":
-        prompt = """
-Translate this English Christian text into Chinese:
+def translate_sections(sections: list, src_locale: str, tgt_locale: str) -> List[str]:
+    src_lang = LOCALE_NAME_LOOKUP[src_locale]
+    tgt_lang = LOCALE_NAME_LOOKUP[tgt_locale]
 
-{input}
+    examples = EXAMPLES_LOOKUP[src_locale][tgt_locale]
 
+    # the init prompt needs to be provided for each translation prompt
+    init_prompt = f"""
+You are a translation gpt that translates from {src_lang} to {tgt_lang}.
+The words and language style should be related to Christianity, the Bible, and churches.
 
+Examples:
 
-Return "<translate failed>" if you cannot translate. Don't return anything else.
-""".format(input=line)
+{"".join(examples)}
+"""
 
-    elif source_lang == "chinese" and target_lang == "english":
-        prompt = """
-Translate this Chinese Christian text into English:
+    translated_sections = []
 
-{input}
+    for section in sections:
+        messages = [
+            {"role": "user", "content": init_prompt},
+            {"role": "user", "content": section},
+        ]
 
+        logger.info(f"translating ({src_lang} -> {tgt_lang}): {section[:30]}...")
 
+        completion = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=messages,
+        )
 
-Return "<translate failed>" if you cannot translate. Don't return anything else.
-""".format(input=line)
+        translated_sections.append(completion['choices'][0]['message']['content'])
 
-    else:
-        raise Exception(f"unsupported translation language: {source_lang} -> {target_lang}")
-
-    # not using davinci. it sometimes produces weird characters in translation. and it's expensive.
-    # completion = get_davinci003_completion(prompt)
-
-    completion = get_gpt35_completion(prompt)
-
-    return completion['choices'][0]['message']['content']
-
-
-LINE_ENDINGS = set(['。', '！', '？', '.', '!', '?', '\n'])  # common line ending characters in multiple languages
-LINE_MIN_LEN = 2
-
-
-@retry(tries=3, delay=1, backoff=2, logger=logger)
-def get_gpt35_completion(prompt, role="user"):
-    return openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": role, "content": prompt}]
-    )
-
-
-@retry(tries=2, delay=1, backoff=2, logger=logger)
-def get_davinci003_completion(prompt):
-    completion = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=prompt,
-        temperature=0.3,
-        max_tokens=100,
-        top_p=1.0,
-        frequency_penalty=0.0,
-        presence_penalty=0.0
-    )
-
-    print(completion)
-    return completion
-
-
-def split_multilingual_text(text):
-    """
-    Splits multilingual text into a list of strings based on line ending characters, ignoring lines shorter than 2 characters.
-
-    Parameters:
-    text (str): The multilingual text to split.
-
-    Returns:
-    List[str]: A list of strings, each containing a line of multilingual text.
-    """
-    lines = []
-    current_line = ''
-    for char in text:
-        if char in LINE_ENDINGS:
-            if len(current_line) >= LINE_MIN_LEN:
-                lines.append(current_line)
-            current_line = ''
-        else:
-            current_line += char
-
-    if len(current_line) >= LINE_MIN_LEN:
-        lines.append(current_line)
-
-    return lines
+    return translated_sections
 
 
 # run the app.
